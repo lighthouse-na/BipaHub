@@ -12,19 +12,11 @@ public type Group record {|
     Permission[] permissions;
 |};
 
-public type UserPermissions record {|
-    User user;
-    Permission permission;
-|};
-
-public type UserGroups record {|
-    User user;
-    Group[] groups;
-|};
-
 public type User record {|
     readonly int id;
     string username;
+    string firstName?;
+    string lastName?;
     string email;
     string password;
     string role;
@@ -33,8 +25,13 @@ public type User record {|
     int secondaryContact?;
     int telephoneNumber?;
     string postalAddress;
-    time:Utc createdAt;
-    time:Utc updatedAt;
+    boolean is_authenticated = false;
+    boolean is_active = false;
+    boolean is_staff = false;
+    Group[] groups?;
+    Permission[] userPermissions?;
+    time:Utc createdAt?;
+    time:Utc updatedAt?;
 |};
 
 // Tech, Agriculture, etc
@@ -46,10 +43,8 @@ public type BusinessTypes record {|
 public type NameReservation record {|
     readonly int id;
     string name;
-    string reason;
+    string reason; // reason for name
     string status; // accepted, rejected.
-    // User|() reviewed_by = ();
-    // time:Utc reviewedAt;
 |};
 
 public type NameReservationApplication record {|

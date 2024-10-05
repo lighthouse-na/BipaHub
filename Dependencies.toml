@@ -295,8 +295,6 @@ dependencies = [
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
-	{org = "moutonh", packageName = "bipa_web_app", moduleName = "bipa_web_app"},
-	{org = "moutonh", packageName = "bipa_web_app", moduleName = "bipa_web_app.models"},
-	{org = "moutonh", packageName = "bipa_web_app", moduleName = "bipa_web_app.validators"}
+	{org = "moutonh", packageName = "bipa_web_app", moduleName = "bipa_web_app"}
 ]
 

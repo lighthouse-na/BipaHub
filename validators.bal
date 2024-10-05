@@ -1,6 +1,5 @@
-import bipa_web_app.models;
 
-function nameReservationsAmountValidator(models:NameReservationApplication application) returns error|() {
+function nameReservationsAmountValidator(NameReservationApplication application) returns error|() {
     if application.nameReservation.length() < 1 {
         return error("There must be at least one name");
     }
@@ -9,7 +8,7 @@ function nameReservationsAmountValidator(models:NameReservationApplication appli
     }
 }
 
-function usernameValidator(models:User user) returns error|() {
+function usernameValidator(User user) returns error|() {
     if user.username.trim() == "" {
         return error("Username cannot be empty or whitespace-only");
     } else if user.username.length() < 3 {
@@ -19,7 +18,7 @@ function usernameValidator(models:User user) returns error|() {
     }
 }
 
-function passwordValidator(models:User user) returns error|() {
+function passwordValidator(User user) returns error|() {
     if user.password.length() < 8 {
         return error("Password must be at least 8 character long");
     }

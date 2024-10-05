@@ -1,0 +1,44 @@
+networks:
+  my_network:
+    driver: bridge
+
+services:
+  # db:
+  #   image: mysql:latest
+  #   restart: always
+  #   # volumes:
+  #   #   - ./data/db:/var/lib/mysql/dataa
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: myuser
+  #     MYSQL_DATABASE: mydb
+  #     MYSQL_USER: myuser
+  #     MYSQL_PASSWORD: myuser
+  #   ports:
+  #     - "3306:3306"
+
+  postgres:
+    # container_name: database
+    image: postgres:latest
+    networks:
+      - my_network
+    restart: always
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    expose:
+      - "5432:5432"
+
+  pgadmin:
+    # container_name: pgadmin
+    image: dpage/pgadmin4
+    networks:
+      - my_network
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@email.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"

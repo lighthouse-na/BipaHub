@@ -1,207 +1,218 @@
 import ballerina/http;
+import ballerina/sql;
+import ballerinax/mysql.driver as _;
 
 listener http:Listener httpListener = new (9090);
 
 service /permissions on httpListener {
 
-    resource function get all_permissions() returns Permission[] {
-        Permission[] permissions = [];
-        return permissions;
+    resource function get .() returns Permission[]|error {
+        stream<Permission, sql:Error?> permissions = mydb->query(`CALL GetAllPermission()`);
+        return from Permission permission in permissions
+            select permission;
     }
 
-    resource function get permission(int id) returns Permission? {
-        return ();
+    resource function get [int id]() returns Permission|error {
+        Permission|sql:Error permission = mydb->queryRow(`CALL GetPermission(${id})`);
+        if permission is sql:NoRowsError {
+            return error("Permission not found");
+        } else {
+            return permission;
+        }
     }
 
-    resource function post create_permission(Permission permission) returns Permission {
+    resource function post create(@http:Payload Permission permission) returns Permission|error {
+        _ = check mydb->call(`CALL CreatePermission(${permission.name},${permission.model})`);
         return permission;
     }
 
-    resource function update update_permission(int id, Permission permission) returns Permission? {
-        return ();
-    }
+    // resource function update update_permission(int id, Permission permission) returns Permission|error {
+    //     return ();
+    // }
 
-    resource function delete delete_permission(int id) returns error? {
-        return ();
+    resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeletePermission(${id})`);
+        return "deleted";
     }
 
 }
 
 service /groups on httpListener {
 
-    resource function get all_groups() returns Group[] {
-        Group[] groups = [];
-        return groups;
+    resource function get .() returns Group[]|error {
+        stream<Group, sql:Error?> groups = mydb->query(`CALL GetAllGroup()`);
+        return from Group group in groups
+            select group;
     }
 
-    resource function get group(int id) returns Group? {
-        return ();
+    resource function get [int id]() returns Group|error {
+        Group|sql:Error group = mydb->queryRow(`CALL GetGroup(${id})`);
+        if group is sql:NoRowsError {
+            return error("Group not found");
+        } else {
+            return group;
+        }
     }
 
-    resource function post create_group(Group group) returns Group {
-        return group;
-    }
+    // resource function post create(@http:Payload Group group) returns Group|error {
+    //     _ = check mydb->call(`CALL CreatePermission(${group.name},${group.permissions[]})`);
+    //     return group;
+    // }
 
-    resource function update update_group(int id, Group group) returns Group? {
-        return ();
-    }
+    // resource function update update_group(int id, Group group) returns Group? {
+    //     return ();
+    // }
 
-    resource function delete delete_group(int id) returns error? {
-        return ();
+    resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeleteGroup(${id})`);
+        return "deleted";
     }
 
 }
 
 service /users on httpListener {
 
-    resource function get all_users() returns User[] {
-        return users.toArray();
+    resource function get .() returns User[]|error {
+        // stream<User, sql:Error?> userStream = mydb->query(`SELECT * FROM Users`);
+        stream<User, sql:Error?> userStream = mydb->query(`CALL GetAllUser()`);
+        return from User user in userStream
+            select user;
     }
 
-    resource function get get_user/[int id]() returns User|error {
-        if users.hasKey(id) {
-            User user = users.get(id);
-            return user;
-        } else {
+    resource function get [int id]() returns User|error {
+        // User|sql:Error user = mydb->queryRow(`SELECT * FROM Users WHERE id = ${id}`);
+        User|sql:Error user = mydb->queryRow(`CALL GetUser(${id})`);
+        if user is sql:NoRowsError {
             return error("User not found");
+        } else {
+            return user;
         }
     }
 
-    resource function post create_user(User user) returns User|error {
-        error? usernameErr = usernameValidator(user);
-        if usernameErr is error {
-            return usernameErr;
-        }
-
-        error? passwordErr = passwordValidator(user);
-        if passwordErr is error {
-            return passwordErr;
-        }
-
-        users.add(user);
+    resource function post create(@http:Payload User user) returns User|error {
+        _ = check mydb->call(`CALL CreateUser(
+                ${user.username},
+                ${user.first_name},
+                ${user.last_name},
+                ${user.email},
+                ${user.password},
+                ${user.role},
+                ${user.identification_number},
+                ${user.primary_contact},
+                ${user.secondary_contact},
+                ${user.telephone_number},
+                ${user.postal_address},
+                ${user.is_authenticated},
+                ${user.is_active},
+                ${user.is_staff}
+                )`);
         return user;
     }
 
-    resource function update update_user(int id, User user) returns User|error|string {
-        return error("");
-    }
-
-    resource function delete delete_user/[int id]() returns User|error|string {
-        if users.hasKey(id) {
-            User user = users.remove(id);
-            return user;
-        } else {
-            return error("User not found");
-        }
+    resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeleteUser(${id})`);
+        return "deleted";
     }
 
 }
 
 service /business/types on httpListener {
 
-    resource function get all() returns BusinessTypes[] {
-        return businessTypes.toArray();
+    resource function get .() returns BusinessTypes[]|error {
+        stream<BusinessTypes, sql:Error?> businessTypes = mydb->query(`CALL GetAllPermission()`);
+        return from BusinessTypes businessType in businessTypes
+            select businessType;
     }
 
-    resource function get get_type/[int id]() returns BusinessTypes|error {
-        if businessTypes.hasKey(id) {
-            BusinessTypes businessType = businessTypes.get(id);
-            return businessType;
+    resource function get [int id]() returns BusinessTypes|error {
+        BusinessTypes|sql:Error businessType = mydb->queryRow(`CALL GetBusinessType(${id})`);
+        if businessType is sql:NoRowsError {
+            return error("Business type not found");
         } else {
-            return error("Type not found");
+            return businessType;
         }
     }
 
-    resource function post create_type(BusinessTypes businessType) returns BusinessTypes|error {
-        businessTypes.add(businessType);
+    resource function post create(@http:Payload BusinessTypes businessType) returns BusinessTypes|error {
+        _ = check mydb->call(`CALL CreateBusinessType(${businessType.name}`);
         return businessType;
     }
 
-    resource function update update_type(int id, BusinessTypes businessType) returns BusinessTypes|error|string {
-        return error("");
-    }
+    // resource function update update_type(int id, BusinessTypes businessType) returns BusinessTypes|error|string {
+    //     return error("");
+    // }
 
-    resource function delete delete_type/[int id]() returns BusinessTypes|error|string {
-        if businessTypes.hasKey(id) {
-            BusinessTypes businessType = businessTypes.remove(id);
-            return businessType;
-        } else {
-            return error("Type not found");
-        }
+    resource function delete delete/[int id]() returns BusinessTypes|error|string {
+        _ = check mydb->call(`CALL DeleteBusinessType(${id})`);
+        return "deleted";
     }
 
 }
 
 service /reservation/name on httpListener {
 
-    resource function get all() returns NameReservation[] {
-        return reservationNames.toArray();
-    }
-
-    resource function get get_type/[int id]() returns NameReservation|error {
-        if reservationNames.hasKey(id) {
-            NameReservation reservationName = reservationNames.get(id);
-            return reservationName;
+    resource function get [int id]() returns NameReservation|error {
+        NameReservation|sql:Error nameReservation = mydb->queryRow(`CALL GetNameReservation(${id})`);
+        if nameReservation is sql:NoRowsError {
+            return error("Name reservation not found");
         } else {
-            return error("Name not found");
+            return nameReservation;
         }
     }
 
-    resource function post create_type(NameReservation reservationName) returns NameReservation|error {
-        reservationNames.add(reservationName);
-        return reservationName;
+    resource function post create(@http:Payload NameReservation nameReservation) returns NameReservation|error {
+        _ = check mydb->call(`CALL CreateNameReservation(${nameReservation.name},${nameReservation.reason},${nameReservation.status})`);
+        return nameReservation;
     }
 
-    resource function update update_type(int id, NameReservation reservationName) returns NameReservation|error|string {
-        return error("");
-    }
+    // resource function update update(int id, NameReservation reservationName) returns NameReservation|error|string {
+    //     return error("");
+    // }
 
-    resource function delete delete_type/[int id]() returns NameReservation|error|string {
-        if reservationNames.hasKey(id) {
-            NameReservation reservationName = reservationNames.remove(id);
-            return reservationName;
-        } else {
-            return error("Name not found");
-        }
+    resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeleteNameReservation(${id})`);
+        return "deleted";
     }
 
 }
 
-service /reservation/application on httpListener {
+service /reservation/applications on httpListener {
 
-    resource function get all() returns NameReservationApplication[] {
-        return nameReservationApplications.toArray();
+    resource function get .() returns NameReservationApplication[]|error {
+        stream<NameReservationApplication, sql:Error?> nameReservationApplications = mydb->query(`CALL GetAllNameReservationApplications()`);
+        return from NameReservationApplication nameReservationApplication in nameReservationApplications
+            select nameReservationApplication;
     }
 
-    resource function get get_type/[int id]() returns NameReservationApplication|error {
-        if nameReservationApplications.hasKey(id) {
-            NameReservationApplication nameReservationApplication = nameReservationApplications.get(id);
-            return nameReservationApplication;
-        } else {
+    resource function get [int id]() returns NameReservationApplication|error {
+        NameReservationApplication|sql:Error nameReservationApplication = mydb->queryRow(`CALL GetNameReservationApplication(${id})`);
+        if nameReservationApplication is sql:NoRowsError {
             return error("Name reservation application not found");
-        }
-    }
-
-    resource function post create_type(NameReservationApplication nameReservationApplication) returns NameReservationApplication|error {
-        error? reservationAmountErr = nameReservationsAmountValidator(nameReservationApplication);
-        if reservationAmountErr is error {
-            return reservationAmountErr;
-        }
-        nameReservationApplications.add(nameReservationApplication);
-        return nameReservationApplication;
-    }
-
-    resource function update update_type(int id, NameReservationApplication nameReservationApplication) returns NameReservationApplication|error|string {
-        return error("");
-    }
-
-    resource function delete delete_type/[int id]() returns NameReservationApplication|error|string {
-        if nameReservationApplications.hasKey(id) {
-            NameReservationApplication nameReservationApplication = nameReservationApplications.remove(id);
-            return nameReservationApplication;
         } else {
-            return error("Name reservation application not found");
+            return nameReservationApplication;
         }
+    }
+
+    // resource function post create(@http:Payload NameReservationApplication nameReservationApplication) returns NameReservationApplication|error {
+    //     _ = check mydb->call(`CALL CreateNameReservationApplication(
+    //             ${nameReservationApplication.user},
+    //             ${nameReservationApplication.name_reservations[]},
+    //             ${nameReservationApplication.business_types[]},
+    //             ${nameReservationApplication.reviewed_by},
+    //             ${nameReservationApplication.reviewed_at},
+    //             ${nameReservationApplication.reviewer_comments},
+    //             ${nameReservationApplication.updated_at},
+    //         )`);
+    //     return nameReservationApplication;
+    // }
+
+    // resource function update update_type(int id, NameReservationApplication nameReservationApplication) returns NameReservationApplication|error|string {
+    //     return error("");
+    // }
+
+    resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeleteNameReservationApplication(${id})`);
+        return "deleted";
     }
 
 }

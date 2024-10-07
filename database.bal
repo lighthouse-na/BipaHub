@@ -1,9 +1,10 @@
-// import ballerina/http;
-import ballerina/sql;
-import ballerinax/postgresql;
-import ballerinax/postgresql.driver as _;
+import ballerinax/mysql;
 
-configurable string host = "172.23.0.2";
+configurable string host = "127.0.0.1";
+configurable int port = 3306;
+configurable string user = "myuser";
+configurable string password = "mypassword";
+configurable string database = "mydb";
 
-postgresql:Client|sql:Error db = check new (host, "postgres", "postgres", "postgres", 5432);
+mysql:Client mydb = check new (host, user, password, database, port);
 

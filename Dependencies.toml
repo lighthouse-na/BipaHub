@@ -301,7 +301,7 @@ modules = [
 
 [[package]]
 org = "ballerinax"
-name = "postgresql"
+name = "mysql"
 version = "1.13.1"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
@@ -311,15 +311,15 @@ dependencies = [
 	{org = "ballerina", name = "time"}
 ]
 modules = [
-	{org = "ballerinax", packageName = "postgresql", moduleName = "postgresql"}
+	{org = "ballerinax", packageName = "mysql", moduleName = "mysql"}
 ]
 
 [[package]]
 org = "ballerinax"
-name = "postgresql.driver"
-version = "1.5.1"
+name = "mysql.driver"
+version = "1.7.0"
 modules = [
-	{org = "ballerinax", packageName = "postgresql.driver", moduleName = "postgresql.driver"}
+	{org = "ballerinax", packageName = "mysql.driver", moduleName = "mysql.driver"}
 ]
 
 [[package]]
@@ -331,8 +331,8 @@ dependencies = [
 	{org = "ballerina", name = "sql"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerinai", name = "observe"},
-	{org = "ballerinax", name = "postgresql"},
-	{org = "ballerinax", name = "postgresql.driver"}
+	{org = "ballerinax", name = "mysql"},
+	{org = "ballerinax", name = "mysql.driver"}
 ]
 modules = [
 	{org = "moutonh", packageName = "bipa_web_app", moduleName = "bipa_web_app"}

@@ -100,6 +100,11 @@ service /users on httpListener {
             return passwordValidationResult;
         }
 
+        error? emailValidationResult = emailValidator(user);
+        if emailValidationResult is error {
+            return emailValidationResult;
+        }
+
         _ = check mydb->call(`CALL CreateUser(
                 ${user.username},
                 ${user.first_name},

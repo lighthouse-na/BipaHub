@@ -1,4 +1,3 @@
-
 function nameReservationsAmountValidator(NameReservationApplication application) returns error|() {
     if application.name_reservations.length() < 1 {
         return error("There must be at least one name");
@@ -15,6 +14,18 @@ function usernameValidator(User user) returns error|() {
         return error("Username must be at least 3 character long");
     } else if user.username.length() > 255 {
         return error("Username is too long, try something shorter");
+    }
+}
+
+function emailValidator(User user) returns error|() {
+    if user.email.trim() == "" {
+        return error("Email cannot be empty or whitespace-only");
+    } else if !user.email.includes("@") {
+        return error("Email must contain '@'");
+    } else if !user.email.includes(".") {
+        return error("Email must contain a '.' after '@'");
+    } else if user.email.length() > 255 {
+        return error("Email cannot exceed 255 characters");
     }
 }
 

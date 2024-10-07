@@ -1,5 +1,3 @@
-import ballerina/time;
-
 public type Permission record {|
     readonly int id;
     string name;

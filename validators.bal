@@ -1,9 +1,9 @@
 
 function nameReservationsAmountValidator(NameReservationApplication application) returns error|() {
-    if application.nameReservation.length() < 1 {
+    if application.name_reservations.length() < 1 {
         return error("There must be at least one name");
     }
-    else if application.nameReservation.length() > 3 {
+    else if application.name_reservations.length() > 3 {
         return error("Maximum of 3 name reservations allowed");
     }
 }

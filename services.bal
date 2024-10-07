@@ -90,6 +90,16 @@ service /users on httpListener {
     }
 
     resource function post create(@http:Payload User user) returns User|error {
+        error? usernameValidationResult = usernameValidator(user);
+        if usernameValidationResult is error {
+            return usernameValidationResult;
+        }
+
+        error? passwordValidationResult = passwordValidator(user);
+        if passwordValidationResult is error {
+            return passwordValidationResult;
+        }
+
         _ = check mydb->call(`CALL CreateUser(
                 ${user.username},
                 ${user.first_name},

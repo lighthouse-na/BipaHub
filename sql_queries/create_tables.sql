@@ -1,5 +1,5 @@
 -- Create the necessary tables as before
-CREATE DATABASE mydb;
+CREATE DATABASE IF NOT EXISTS mydb;
 
 -- Permissions Table
 CREATE TABLE Permissions (

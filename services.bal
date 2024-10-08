@@ -2,7 +2,31 @@ import ballerina/http;
 import ballerina/sql;
 import ballerinax/mysql.driver as _;
 
-listener http:Listener httpListener = new (9090);
+listener http:Listener httpListener = new (9090, secureSocket = {
+    key: {
+        certFile: "./public.crt",
+        keyFile: "./private.key"
+    }
+});
+
+@http:ServiceConfig {
+    auth: [
+        {
+            oauth2IntrospectionConfig: {
+                url: "https://localhost:9445/oauth2/introspect",
+                tokenTypeHint: "access_token",
+                scopeKey: "scp",
+                clientConfig: {
+                    customHeaders: {"Authorization": "Basic YWRtaW46YWRtaW4="},
+                    secureSocket: {
+                        cert: "./public.crt"
+                    }
+                }
+            },
+            scopes: ["admin"]
+        }
+    ]
+}
 
 service /permissions on httpListener {
 
@@ -124,8 +148,8 @@ service /users on httpListener {
         return user;
     }
 
-    resource function delete delete/[int id]() returns error|string {
-        _ = check mydb->call(`CALL DeleteUser(${id})`);
+    isolated resource function delete delete/[int id]() returns error|string {
+        _ = check mydb->call(`CALL DeleteUser( ${id} )`);
         return "deleted";
     }
 
@@ -133,13 +157,13 @@ service /users on httpListener {
 
 service /business/types on httpListener {
 
-    resource function get .() returns BusinessTypes[]|error {
+    isolated resource function get .() returns BusinessTypes[]|error {
         stream<BusinessTypes, sql:Error?> businessTypes = mydb->query(`CALL GetAllPermission()`);
         return from BusinessTypes businessType in businessTypes
             select businessType;
     }
 
-    resource function get [int id]() returns BusinessTypes|error {
+    isolated resource function get [int id]() returns BusinessTypes|error {
         BusinessTypes|sql:Error businessType = mydb->queryRow(`CALL GetBusinessType(${id})`);
         if businessType is sql:NoRowsError {
             return error("Business type not found");
@@ -148,16 +172,16 @@ service /business/types on httpListener {
         }
     }
 
-    resource function post create(@http:Payload BusinessTypes businessType) returns BusinessTypes|error {
+    isolated resource function post create(@http:Payload BusinessTypes businessType) returns BusinessTypes|error {
         _ = check mydb->call(`CALL CreateBusinessType(${businessType.name}`);
         return businessType;
     }
 
-    // resource function update update_type(int id, BusinessTypes businessType) returns BusinessTypes|error|string {
+    // isolated resource function update update_type(int id, BusinessTypes businessType) returns BusinessTypes|error|string {
     //     return error("");
     // }
 
-    resource function delete delete/[int id]() returns BusinessTypes|error|string {
+    isolated resource function delete delete/[int id]() returns BusinessTypes|error|string {
         _ = check mydb->call(`CALL DeleteBusinessType(${id})`);
         return "deleted";
     }
@@ -166,7 +190,7 @@ service /business/types on httpListener {
 
 service /reservation/name on httpListener {
 
-    resource function get [int id]() returns NameReservation|error {
+    isolated resource function get [int id]() returns NameReservation|error {
         NameReservation|sql:Error nameReservation = mydb->queryRow(`CALL GetNameReservation(${id})`);
         if nameReservation is sql:NoRowsError {
             return error("Name reservation not found");
@@ -175,16 +199,16 @@ service /reservation/name on httpListener {
         }
     }
 
-    resource function post create(@http:Payload NameReservation nameReservation) returns NameReservation|error {
+    isolated resource function post create(@http:Payload NameReservation nameReservation) returns NameReservation|error {
         _ = check mydb->call(`CALL CreateNameReservation(${nameReservation.name},${nameReservation.reason},${nameReservation.status})`);
         return nameReservation;
     }
 
-    // resource function update update(int id, NameReservation reservationName) returns NameReservation|error|string {
+    // isolated resource function update update(int id, NameReservation reservationName) returns NameReservation|error|string {
     //     return error("");
     // }
 
-    resource function delete delete/[int id]() returns error|string {
+    isolated resource function delete delete/[int id]() returns error|string {
         _ = check mydb->call(`CALL DeleteNameReservation(${id})`);
         return "deleted";
     }
@@ -193,13 +217,13 @@ service /reservation/name on httpListener {
 
 service /reservation/applications on httpListener {
 
-    resource function get .() returns NameReservationApplication[]|error {
+    isolated resource function get .() returns NameReservationApplication[]|error {
         stream<NameReservationApplication, sql:Error?> nameReservationApplications = mydb->query(`CALL GetAllNameReservationApplications()`);
         return from NameReservationApplication nameReservationApplication in nameReservationApplications
             select nameReservationApplication;
     }
 
-    resource function get [int id]() returns NameReservationApplication|error {
+    isolated resource function get [int id]() returns NameReservationApplication|error {
         NameReservationApplication|sql:Error nameReservationApplication = mydb->queryRow(`CALL GetNameReservationApplication(${id})`);
         if nameReservationApplication is sql:NoRowsError {
             return error("Name reservation application not found");
@@ -208,7 +232,7 @@ service /reservation/applications on httpListener {
         }
     }
 
-    // resource function post create(@http:Payload NameReservationApplication nameReservationApplication) returns NameReservationApplication|error {
+    // isolated resource function post create(@http:Payload NameReservationApplication nameReservationApplication) returns NameReservationApplication|error {
     //     _ = check mydb->call(`CALL CreateNameReservationApplication(
     //             ${nameReservationApplication.user},
     //             ${nameReservationApplication.name_reservations[]},
@@ -221,11 +245,11 @@ service /reservation/applications on httpListener {
     //     return nameReservationApplication;
     // }
 
-    // resource function update update_type(int id, NameReservationApplication nameReservationApplication) returns NameReservationApplication|error|string {
+    // isolated resource function update update_type(int id, NameReservationApplication nameReservationApplication) returns NameReservationApplication|error|string {
     //     return error("");
     // }
 
-    resource function delete delete/[int id]() returns error|string {
+    isolated resource function delete delete/[int id]() returns error|string {
         _ = check mydb->call(`CALL DeleteNameReservationApplication(${id})`);
         return "deleted";
     }

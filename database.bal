@@ -6,5 +6,5 @@ configurable string user = "myuser";
 configurable string password = "mypassword";
 configurable string database = "mydb";
 
-mysql:Client mydb = check new (host, user, password, database, port);
+final mysql:Client mydb = check new (host, user, password, database, port);
 

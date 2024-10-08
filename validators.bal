@@ -7,7 +7,7 @@ function nameReservationsAmountValidator(NameReservationApplication application)
     }
 }
 
-function usernameValidator(User user) returns error|() {
+isolated function usernameValidator(User user) returns error|() {
     if user.username.trim() == "" {
         return error("Username cannot be empty or whitespace-only");
     } else if user.username.length() < 3 {
@@ -17,7 +17,7 @@ function usernameValidator(User user) returns error|() {
     }
 }
 
-function emailValidator(User user) returns error|() {
+isolated function emailValidator(User user) returns error|() {
     if user.email.trim() == "" {
         return error("Email cannot be empty or whitespace-only");
     } else if !user.email.includes("@") {
@@ -29,7 +29,7 @@ function emailValidator(User user) returns error|() {
     }
 }
 
-function passwordValidator(User user) returns error|() {
+isolated function passwordValidator(User user) returns error|() {
     if user.password.length() < 8 {
         return error("Password must be at least 8 character long");
     }
